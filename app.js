@@ -1,4 +1,5 @@
-var _ = require('lodash'),
+var path = require('path'),
+    _ = require('lodash'),
     express = require('express'),
     exphbs  = require('express3-handlebars'),
     bodyParser = require('body-parser'),
@@ -10,9 +11,11 @@ var _ = require('lodash'),
 
 sql.connect();
 
+app.set('views', __dirname + '/views');
 app.engine('hbs', exphbs({
     extname: '.hbs',
-    defaultLayout: 'main'
+    defaultLayout: 'main',
+    layoutsDir: __dirname + '/views/layouts'
 }));
 app.set('view engine', 'hbs');
 
@@ -37,7 +40,43 @@ function getDefaultData(req) {
 }
 
 app.get('/', function(req, res) {
-    res.render('index', getDefaultData(req));
+    var minPrice = parseFloat(req.query.min, 10) * 100,
+        maxPrice = parseFloat(req.query.max, 10) * 100,
+        query = 'SELECT * FROM products WHERE ';
+
+    if (req.query.min && !_.isNaN(minPrice)) {
+        query += '(price > ' + minPrice + ') AND ';
+    }
+    if (req.query.max && !_.isNaN(maxPrice)) {
+        query += '(price < ' + maxPrice + ') AND ';
+    }
+
+    query += '(1=1);';
+
+    sql.query(query, function (err, rows) {
+        if (err) {
+            res.render('index', _.extend(getDefaultData(req), {
+                minPrice: '',
+                maxPrice: '',
+                products: []
+            }));
+        }
+
+        res.render('index', _.extend(getDefaultData(req), {
+            minPrice: minPrice / 100,
+            maxPrice: maxPrice / 100,
+            products: _.map(rows, function (it) {
+                return {
+                    name: it.name,
+                    description: it.description,
+                    image: new Buffer( it.image, 'binary' ).toString('base64'),
+                    price: (it.price / 100) + ' EUR'
+                };
+            })
+        }));
+    });
+
+
 });
 
 app.get('/login', function(req, res) {
