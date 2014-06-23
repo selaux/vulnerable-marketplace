@@ -46,7 +46,7 @@ app.post('/login', function(req, res) {
         res.redirect(req.body.redirectTo);
     } else {
         res.render('login', _.extend(getDefaultData(req), {
-            errorMessage: 'Login Failed',
+            errorMessage: 'Login Failed for user ' + req.body.username,
             redirectTo: req.body.redirectTo
         }));
     }
