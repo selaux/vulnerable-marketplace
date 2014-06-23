@@ -45,10 +45,10 @@ app.get('/', function(req, res) {
         query = 'SELECT * FROM products WHERE ';
 
     if (req.query.min && !_.isNaN(minPrice)) {
-        query += '(price > ' + minPrice + ') AND ';
+        query += '(price >= ' + minPrice + ') AND ';
     }
     if (req.query.max && !_.isNaN(maxPrice)) {
-        query += '(price < ' + maxPrice + ') AND ';
+        query += '(price <= ' + maxPrice + ') AND ';
     }
 
     query += '(1=1);';
