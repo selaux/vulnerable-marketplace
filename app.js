@@ -78,4 +78,48 @@ app.get('/logout', function (req, res) {
     res.redirect('/');
 });
 
+app.get('/register', function (req, res) {
+    res.render('register');
+});
+
+app.post('/register', function (req, res) {
+    var username = req.body.username,
+        password = req.body.password,
+        password2 = req.body.password2,
+        errors = [],
+        query = 'INSERT INTO users VALUES ("' +  username + '", "' + password + '", 0);';
+
+    if (username.length < 5 || username.length > 30 || !username.match('^[a-zA-Z0-9]+$')) {
+        errors.push('The username should be 5 - 30 alphanumeric characters.');
+    }
+    if (password.match('[;=]')) {
+        errors.push('= and ; are not allowed in the password.');
+    }
+    if (password.length < 5 || password.length > 30) {
+        errors.push('The password should be 5 to 30 characters.')
+    }
+    if (password !== password2) {
+        errors.push('The passwords do not match.')
+    }
+
+    if (errors.length === 0) {
+        sql.query(query, function (err) {
+            if (err) {
+                console.log(err, query);
+                return res.render('register', _.extend(getDefaultData(req), {
+                    errorMessage: 'An error occured, try again later'
+                }));
+            }
+
+            req.session.loggedIn = true;
+            req.session.loggedInAs = username;
+            res.redirect('/');
+        });
+    } else {
+        res.render('register', _.extend(getDefaultData(req), {
+            errorMessage: errors.join(' ')
+        }));
+    }
+});
+
 app.listen(3000);

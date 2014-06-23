@@ -1,0 +1,10 @@
+<h1>Registration</h1>
+{{#if errorMessage}}
+    <p>{{ errorMessage }}</p>
+{{/if}}
+<form method="POST" action="/register">
+    <input type="text" name="username" placeholder="Username"><br />
+    <input type="password" name="password" placeholder="Password"><br/>
+    <input type="password" name="password2" placeholder="Password (Repeat)"><br/>
+    <input type="submit" value="Register">
+</form>

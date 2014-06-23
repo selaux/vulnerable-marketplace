@@ -9,7 +9,7 @@
             {{#if loggedIn}}
                 <p>Welcome, {{ loggedInAs }}. <a href="/logout">Logout</a></p>
             {{else}}
-                <p>Welcome, please <a href="/login?redirectTo={{ currentUrl }}">login</a>.</p>
+                <p>Welcome, please <a href="/login?redirectTo={{ currentUrl }}">login</a> or <a href="/register">register</a>.</p>
             {{/if}}
         {{/if}}
         {{{ body }}}
