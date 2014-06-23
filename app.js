@@ -19,7 +19,9 @@ app.use(cookieSession({
 }));
 
 function getDefaultData(req) {
-    var defaultData = {};
+    var defaultData = {
+        currentUrl: encodeURIComponent(req.url)
+    };
     if (req.session.loggedIn) {
         defaultData.loggedIn = true;
         defaultData.loggedInAs = req.session.loggedInAs;
@@ -48,6 +50,11 @@ app.post('/login', function(req, res) {
             redirectTo: req.body.redirectTo
         }));
     }
+});
+
+app.get('/logout', function (req, res) {
+    req.session = null;
+    res.redirect('/');
 });
 
 app.listen(3000);

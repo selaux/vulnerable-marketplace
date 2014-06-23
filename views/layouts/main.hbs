@@ -3,6 +3,11 @@
         <title>A vulnerable marketplace.</title>
     </head>
     <body>
+        {{#if loggedIn}}
+            <p>Welcome, {{ loggedInAs }}. <a href="/logout">Logout</a></p>
+        {{else}}
+            <p>Welcome, please <a href="/login?redirectTo={{ currentUrl }}">login</a>.</p>
+        {{/if}}
         {{{ body }}}
     </body>
 </html>
