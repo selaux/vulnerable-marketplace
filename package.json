@@ -1,6 +1,6 @@
 {
     "name": "vulnerable-marketplace",
-    "description": "Finally, no annoying validation anymore."
+    "description": "Finally, no annoying validation anymore.",
     "dependencies": {
         "express": "4.4.4"
     }
