@@ -3,6 +3,7 @@ var _ = require('lodash'),
     exphbs  = require('express3-handlebars'),
     bodyParser = require('body-parser'),
     cookieSession = require('cookie-session'),
+    config = require('./config.json'),
     app = express();
 
 app.engine('hbs', exphbs({
@@ -20,6 +21,8 @@ app.use(cookieSession({
 
 function getDefaultData(req) {
     var defaultData = {
+        pageTitle: config.title,
+        showLogin: req.url.indexOf('/login') !== 0,
         currentUrl: encodeURIComponent(req.url)
     };
     if (req.session.loggedIn) {

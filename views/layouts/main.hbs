@@ -2,13 +2,15 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>A vulnerable marketplace.</title>
+        <title>{{ pageTitle }}</title>
     </head>
     <body>
-        {{#if loggedIn}}
-            <p>Welcome, {{ loggedInAs }}. <a href="/logout">Logout</a></p>
-        {{else}}
-            <p>Welcome, please <a href="/login?redirectTo={{ currentUrl }}">login</a>.</p>
+        {{#if showLogin}}
+            {{#if loggedIn}}
+                <p>Welcome, {{ loggedInAs }}. <a href="/logout">Logout</a></p>
+            {{else}}
+                <p>Welcome, please <a href="/login?redirectTo={{ currentUrl }}">login</a>.</p>
+            {{/if}}
         {{/if}}
         {{{ body }}}
     </body>
