@@ -48,7 +48,7 @@ app.get('/login', function(req, res) {
 
 app.post('/login', function(req, res) {
     var username = req.body.username.replace(/[^a-zA-Z0-9]/g, ''),
-        password = req.body.password.replace(';', '').replace('=', ''),
+        password = req.body.password.replace(/[;=]/g, ''),
         query = 'SELECT * FROM users WHERE (username = "' + username + '" AND password = "' + password + '");';
 
     function failed() {
