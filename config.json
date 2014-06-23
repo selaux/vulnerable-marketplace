@@ -1,3 +1,9 @@
 {
-    "title": "A Vulnerable Marketplace!"
+    "title": "A Vulnerable Marketplace!",
+    "mysql": {
+        "host": "localhost",
+        "user": "root",
+        "password": "root",
+        "database": "vulnerable_marketplace"
+    }
 }

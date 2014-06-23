@@ -3,8 +3,12 @@ var _ = require('lodash'),
     exphbs  = require('express3-handlebars'),
     bodyParser = require('body-parser'),
     cookieSession = require('cookie-session'),
+    mysql = require('mysql'),
     config = require('./config.json'),
-    app = express();
+    app = express(),
+    sql = mysql.createConnection(config.mysql);
+
+sql.connect();
 
 app.engine('hbs', exphbs({
     extname: '.hbs',
@@ -38,21 +42,35 @@ app.get('/', function(req, res) {
 
 app.get('/login', function(req, res) {
     res.render('login', _.extend(getDefaultData(req), {
-        redirectTo: req.query.redirectTo
+        redirectTo: req.query.redirectTo || '/'
     }));
 });
 
 app.post('/login', function(req, res) {
-    if (req.body.username == 'admin' && req.body.password === 'password') {
-        req.session.loggedInAs = 'admin';
-        req.session.loggedIn = true;
-        res.redirect(req.body.redirectTo);
-    } else {
+    var username = req.body.username.replace(/[^a-zA-Z0-9]/g, ''),
+        password = req.body.password.replace(';', '').replace('=', ''),
+        query = 'SELECT * FROM users WHERE (username = "' + username + '" AND password = "' + password + '");';
+
+    function failed() {
         res.render('login', _.extend(getDefaultData(req), {
             errorMessage: 'Login Failed for user ' + req.body.username,
             redirectTo: req.body.redirectTo
         }));
     }
+
+    sql.query(query, function(err, rows) {
+        if (err) {
+            return failed();
+        }
+
+        if (rows.length > 0) {
+            req.session.loggedInAs = rows[0].username;
+            req.session.loggedIn = true;
+            res.redirect(req.body.redirectTo);
+        } else {
+            failed();
+        }
+    });
 });
 
 app.get('/logout', function (req, res) {
