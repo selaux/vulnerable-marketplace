@@ -1,0 +1,10 @@
+<h1>Login</h1>
+{{#if errorMessage}}
+    <p>{{ errorMessage }}</p>
+{{/if}}
+<form method="POST" action="/login">
+    <input type="text" name="username" placeholder="Username"><br />
+    <input type="password" name="password" placeholder="Password"><br/>
+    <input type="hidden" name="redirectTo" value="{{ redirectTo }}"><br/>
+    <input type="submit" value="Login">
+</form>

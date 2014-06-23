@@ -3,6 +3,7 @@
     "description": "Finally, no annoying validation anymore.",
     "dependencies": {
         "express": "4.4.4",
-        "express3-handlebars": "0.5.0"
+        "express3-handlebars": "0.5.0",
+        "body-parser": "1.4.3"
     }
 }
