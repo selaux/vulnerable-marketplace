@@ -1,4 +1,5 @@
-var express = require('express'),
+var _ = require('lodash'),
+    express = require('express'),
     exphbs  = require('express3-handlebars'),
     bodyParser = require('body-parser'),
     cookieSession = require('cookie-session'),
@@ -17,14 +18,23 @@ app.use(cookieSession({
     signed: false
 }));
 
+function getDefaultData(req) {
+    var defaultData = {};
+    if (req.session.loggedIn) {
+        defaultData.loggedIn = true;
+        defaultData.loggedInAs = req.session.loggedInAs;
+    }
+    return defaultData;
+}
+
 app.get('/', function(req, res) {
-    res.render('index');
+    res.render('index', getDefaultData(req));
 });
 
 app.get('/login', function(req, res) {
-    res.render('login', {
+    res.render('login', _.extend(getDefaultData(req), {
         redirectTo: req.query.redirectTo
-    });
+    }));
 });
 
 app.post('/login', function(req, res) {
@@ -33,10 +43,10 @@ app.post('/login', function(req, res) {
         req.session.loggedIn = true;
         res.redirect(req.body.redirectTo);
     } else {
-        res.render('login', {
+        res.render('login', _.extend(getDefaultData(req), {
             errorMessage: 'Login Failed',
             redirectTo: req.body.redirectTo
-        });
+        }));
     }
 });
 
