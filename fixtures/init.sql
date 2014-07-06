@@ -22,6 +22,9 @@ SET time_zone = "+00:00";
 
 -- --------------------------------------------------------
 
+DROP TABLE `products`;
+DROP TABLE `users`;
+
 --
 -- Tabellenstruktur für Tabelle `products`
 --
