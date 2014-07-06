@@ -1,0 +1,21 @@
+<h1></h1>
+<form method="POST" action="/update" enctype="multipart/form-data">
+    <input name="id" type="hidden" value="{{ id }}">
+    <p>
+        <label>Name:</label>
+        <input name="name" type="text" value="{{ name }}" placeholder="Your product name.">
+    </p>
+    <p>
+        <label>Price (in cents):</label>
+        <input name="price" type="number" value="{{ price }}" placeholder="Your product price.">
+    </p>
+    <p>
+        <label>Image:</label>
+        <input name="image" type="file">
+    </p>
+    <p>
+        <label>Description:</label>
+        <textarea name="description">{{ description }}</textarea>
+    </p>
+    <input type="submit" value="Submit.">
+</form>

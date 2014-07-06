@@ -6,11 +6,16 @@
     <label>To</label><input type="number" value="{{ maxPrice }}" name="max">
     <input type="submit" value="apply">
 </form>
+{{#if isLoggedIn}}
+    <p>
+        <a href="/edit">Create new product.</a>
+    </p>
+{{/if}}
 <ul>
     {{#each products}}
         <li style="height: 160px; margin-bottom: 20px; list-style-type: none;">
-            <img style="float: left; padding-right: 10px;" width="100" height="160" alt="star" src="data:image/jpg;base64,{{ image }}">
-            <p>{{ name }} - {{ price }}</p>
+            <img style="float: left; padding-right: 10px; width: 100px; height: 160px;" width="100" height="160" alt="star" src="data:image/jpg;base64,{{ image }}">
+            <p>{{ name }} - {{ price }}{{#if isMine}} - <a href="/edit/{{id}}">edit</a>{{/if}}</p>
             <p>{{ description }}</p>
         </li>
     {{/each}}

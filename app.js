@@ -1,8 +1,9 @@
-var path = require('path'),
+var fs = require('fs'),
     _ = require('lodash'),
     express = require('express'),
     exphbs  = require('express3-handlebars'),
     bodyParser = require('body-parser'),
+    multer  = require('multer'),
     cookieSession = require('cookie-session'),
     mysql = require('mysql'),
     config = require('./config.json'),
@@ -22,6 +23,7 @@ app.set('view engine', 'hbs');
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+app.use(multer());
 app.use(cookieSession({
     signed: false
 }));
@@ -29,6 +31,7 @@ app.use(cookieSession({
 function getDefaultData(req) {
     var defaultData = {
         pageTitle: config.title,
+        isLoggedIn: req.session.loggedIn,
         showLogin: req.url.indexOf('/login') !== 0,
         currentUrl: encodeURIComponent(req.url)
     };
@@ -67,10 +70,12 @@ app.get('/', function(req, res) {
             maxPrice: maxPrice / 100,
             products: _.map(rows, function (it) {
                 return {
+                    id: it.id,
                     name: it.name,
                     description: it.description,
                     image: new Buffer( it.image, 'binary' ).toString('base64'),
-                    price: (it.price / 100) + ' EUR'
+                    price: (it.price / 100) + ' EUR',
+                    isMine: it.user === req.session.loggedInAs
                 };
             })
         }));
@@ -158,6 +163,100 @@ app.post('/register', function (req, res) {
         res.render('register', _.extend(getDefaultData(req), {
             errorMessage: errors.join(' ')
         }));
+    }
+});
+
+app.get('/edit', function (req, res) {
+    if (req.session.loggedIn) {
+        res.render('edit');
+    } else {
+        res.send(403);
+    }
+});
+
+app.get('/edit/:id', function (req, res) {
+    var id = req.params.id,
+        query = 'SELECT * FROM products WHERE (id = ' + id + ');';
+
+    if (req.session.loggedIn) {
+        sql.query(query, function (err, rows) {
+            if (err) {
+                console.log(err, query);
+                res.send(500);
+            } else {
+                if (rows.length > 0) {
+                    res.render('edit', _.extend(getDefaultData(req), rows[0]));
+                } else {
+                    res.send(404);
+                }
+            }
+        });
+    } else {
+        res.send(403);
+    }
+});
+
+app.post('/update', function (req, res) {
+    var formValues = _.pick(req.body, 'name', 'price', 'description'),
+        image,
+        query,
+        doUpdate = function () {
+            formValues = {
+                name: '"' + formValues.name + '"',
+                user: '"' + req.session.loggedInAs + '"',
+                price: formValues.price.toString(),
+                description: '"' + formValues.description + '"'
+            };
+            if (image) {
+                image = '0x' + image;
+                formValues.image = image;
+            }
+
+            if (req.body.id) {
+                formValues = _(formValues).omit('user').map(function (val, key) {
+                    return key + '=' + val;
+                }).values();
+                query = 'UPDATE `products` SET ' + formValues.join(', ') + ' WHERE id=' + req.body.id + ';';
+            } else {
+                formValues = [
+                    formValues.name,
+                    formValues.user,
+                    formValues.price,
+                    formValues.image,
+                    formValues.description
+                ];
+                query = 'INSERT INTO `products` (`name`, `user`, `price`, `image`, `description`) VALUES (' + formValues.join(', ') + ');';
+            }
+            sql.query(query, function (err) {
+                if (err) {
+                    console.log(err, query);
+                    res.send(500);
+                } else {
+                    res.redirect('/');
+                }
+            });
+        };
+
+    if (!req.session.loggedIn) {
+        return res.send(403);
+    }
+    if (!_.all(formValues)) {
+        return res.send(500, 'Not all values provided');
+    }
+    if (!req.files.image && !req.body.id) {
+        return res.send(500, 'No image provided');
+    }
+
+    if (req.files.image) {
+        fs.readFile(req.files.image.path, { encoding: 'hex' }, function (err, readImage) {
+            if (err) {
+                return res.send(500);
+            }
+            image = readImage;
+            doUpdate();
+        });
+    } else {
+        doUpdate();
     }
 });
 
